@@ -94,7 +94,6 @@ fd_alloc(struct gralloc_drm_drv_t *drv, struct gralloc_drm_handle_t *handle)
 	}
 	else {
 		int width, height, pitch;
-
 		width = handle->width;
 		height = handle->height;
 		gralloc_drm_align_geometry(handle->format, &width, &height);
@@ -139,8 +138,10 @@ static int fd_map(struct gralloc_drm_drv_t *drv,
 		int enable_write, void **addr)
 {
 	struct fd_buffer *fd_buf = (struct fd_buffer *) bo;
-	if (fd_bo_map(fd_buf->bo))
+	if (*addr = fd_bo_map(fd_buf->bo)) {
 		return 0;
+        }
+
 	return -errno;
 }
 
