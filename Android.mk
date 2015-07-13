@@ -97,7 +97,7 @@ LOCAL_SHARED_LIBRARIES := \
 
 ifneq ($(filter $(freedreno_drivers), $(DRM_GPU_DRIVERS)),)
 LOCAL_SRC_FILES += gralloc_drm_freedreno.c
-LOCAL_CFLAGS += -DENABLE_FREEDRENO
+LOCAL_CFLAGS += -DENABLE_FREEDRENO -DDMABUF
 LOCAL_SHARED_LIBRARIES += libdrm_freedreno
 endif
 

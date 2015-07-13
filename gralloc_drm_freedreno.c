@@ -83,6 +83,17 @@ fd_alloc(struct gralloc_drm_drv_t *drv, struct gralloc_drm_handle_t *handle)
 	if (!fd_buf)
 		return NULL;
 
+#ifdef DMABUF
+        if (handle->prime_fd >= 0) {
+		fd_buf->bo = fd_bo_from_dmabuf(info->dev, handle->prime_fd);
+		if (!fd_buf->bo) {
+			ALOGE("failed to create fd bo from dma-buf %u",
+					handle->prime_fd);
+			free(fd_buf);
+			return NULL;
+		}
+        }
+#else
 	if (handle->name) {
 		fd_buf->bo = fd_bo_from_name(info->dev, handle->name);
 		if (!fd_buf->bo) {
@@ -92,6 +103,7 @@ fd_alloc(struct gralloc_drm_drv_t *drv, struct gralloc_drm_handle_t *handle)
 			return NULL;
 		}
 	}
+#endif
 	else {
 		int width, height, pitch;
 		width = handle->width;
@@ -107,6 +119,18 @@ fd_alloc(struct gralloc_drm_drv_t *drv, struct gralloc_drm_handle_t *handle)
 			return NULL;
 		}
 
+#ifdef DMABUF
+		int fd = fd_bo_dmabuf(fd_buf->bo);
+		if(fd >= 0) {
+			handle->prime_fd = fd;
+		}
+		else {
+			ALOGE("failed to set prime fd");
+			fd_bo_del(fd_buf->bo);
+			free(fd_buf);
+			return NULL;
+		}
+#endif
 		if (fd_bo_get_name(fd_buf->bo, (uint32_t *) &handle->name)) {
 			ALOGE("failed to flink fd bo");
 			fd_bo_del(fd_buf->bo);
